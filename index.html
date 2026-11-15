@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Risk & Loan Portfolio Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased p-4 md:p-8">
+
+    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-6 gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <span class="px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">PORTFOLIO ANALYTICS</span>
+                <span class="text-xs text-slate-400 font-mono">SQL &bull; PYTHON &bull; EXCEL &bull; POWER BI</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white mt-2">Credit Risk & Loan Default Analysis</h1>
+            <p class="text-slate-400 text-sm mt-1">Borrower Segmentation, Default Driver Analysis & Approval Cut-Off Optimization</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="text-right">
+                <div class="text-xs text-slate-400">Total Loan Exposure</div>
+                <div class="text-xl font-bold text-white">$449.3M</div>
+            </div>
+            <div class="h-8 w-px bg-slate-800"></div>
+            <div class="text-right">
+                <div class="text-xs text-slate-400">Total Loans Analyzed</div>
+                <div class="text-xl font-bold text-emerald-400">30,000</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto space-y-8">
+
+        <!-- Top Metric KPI Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                <div class="text-xs font-medium text-slate-400">Overall Default Rate</div>
+                <div class="text-2xl font-bold text-rose-400 mt-1">18.10%</div>
+                <div class="text-xs text-slate-500 mt-1">Unfiltered Loan Pool</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                <div class="text-xs font-medium text-slate-400">Top Risk Driver</div>
+                <div class="text-2xl font-bold text-indigo-400 mt-1">Credit Score</div>
+                <div class="text-xs text-slate-500 mt-1">Strongest Default Correlation</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                <div class="text-xs font-medium text-slate-400">Target Risk Cap</div>
+                <div class="text-2xl font-bold text-cyan-400 mt-1">&lt; 5.0%</div>
+                <div class="text-xs text-slate-500 mt-1">Max Acceptable Bad Rate</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                <div class="text-xs font-medium text-slate-400">Optimal Score Cut-Off</div>
+                <div class="text-2xl font-bold text-amber-400 mt-1">Score &ge; 550</div>
+                <div class="text-xs text-slate-500 mt-1">Achieves 4.53% Default Rate</div>
+            </div>
+        </div>
+
+        <!-- Interactive Approval Cut-off Simulator -->
+        <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <span>Loan Approval Cut-Off Simulator (What-If Analysis)</span>
+                        <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">Interactive</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Adjust the minimum credit score threshold to compare loan approval volume, default rate, and net profit.</p>
+                </div>
+                <div class="flex items-center gap-4 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
+                    <span class="text-sm text-slate-400">Min Score Threshold:</span>
+                    <span id="cutoff-display" class="text-xl font-bold text-emerald-400 font-mono">550</span>
+                    <span class="text-xs text-slate-500">Points</span>
+                </div>
+            </div>
+
+            <div class="py-6">
+                <div class="flex justify-between text-xs text-slate-400 mb-2 font-mono">
+                    <span>460 (High Volume)</span>
+                    <span class="text-indigo-400 font-semibold">500 (Max Gross Profit)</span>
+                    <span class="text-emerald-400 font-semibold">550 (Target &lt;5% Default)</span>
+                    <span>610 (Strict / Low Risk)</span>
+                </div>
+                <input id="cutoff-slider" type="range" min="460" max="610" step="10" value="550" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+            </div>
+
+            <!-- Dynamic Simulator Outputs -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 pt-2">
+                <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5">
+                    <div class="text-xs text-slate-400">Approval Rate</div>
+                    <div id="sim-approval" class="text-xl font-bold text-white mt-1">50.5%</div>
+                    <div id="sim-volume" class="text-xs text-slate-500 mt-0.5">4,503 Approved</div>
+                </div>
+                <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5">
+                    <div class="text-xs text-slate-400">Portfolio Default Rate</div>
+                    <div id="sim-badrate" class="text-xl font-bold text-emerald-400 mt-1">4.53%</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Target: &lt; 5.0%</div>
+                </div>
+                <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5">
+                    <div class="text-xs text-slate-400">Total Loan Disbursed</div>
+                    <div id="sim-disbursed" class="text-xl font-bold text-white mt-1">$64.4M</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Total Capital Lent</div>
+                </div>
+                <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5">
+                    <div class="text-xs text-slate-400">Default Loss</div>
+                    <div id="sim-loss" class="text-xl font-bold text-rose-400 mt-1">$2.00M</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Unrecovered Principal</div>
+                </div>
+                <div class="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5 col-span-2 md:col-span-1">
+                    <div class="text-xs text-slate-400">Net Profit</div>
+                    <div id="sim-profit" class="text-xl font-bold text-cyan-400 mt-1">$8.05M</div>
+                    <div id="sim-rod" class="text-xs text-slate-500 mt-0.5">Return: 12.50%</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Chart 1: Default Rate by Credit Tier -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-white">Default Rate by Credit Tier (SQL Segmentation)</h3>
+                    <span class="text-xs text-slate-500">Historical Data</span>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="tierChart"></canvas>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-slate-800/60 text-center text-xs">
+                    <div><span class="text-rose-400 font-semibold">76.8%</span><div class="text-slate-500">Deep Sub</div></div>
+                    <div><span class="text-amber-400 font-semibold">34.8%</span><div class="text-slate-500">Subprime</div></div>
+                    <div><span class="text-indigo-400 font-semibold">10.8%</span><div class="text-slate-500">Prime</div></div>
+                    <div><span class="text-emerald-400 font-semibold">3.0%</span><div class="text-slate-500">Super Prime</div></div>
+                </div>
+            </div>
+
+            <!-- Chart 2: Default Rate vs Net Profit Across Cut-Offs -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-white">Profit vs. Default Rate Trade-Off (Python EDA)</h3>
+                    <span class="text-xs text-slate-500">Cut-Off Comparison</span>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="tradeoffChart"></canvas>
+                </div>
+                <div class="flex justify-between items-center mt-4 pt-3 border-t border-slate-800/60 text-xs text-slate-400 px-2">
+                    <span>Peak Profit Score: <strong class="text-indigo-400">500 ($11.89M)</strong></span>
+                    <span>Safe Risk Score: <strong class="text-emerald-400">550 (4.53% Default)</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Factors & Business Recommendations -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Table 1: Key Default Drivers -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+                <h3 class="text-sm font-semibold text-white mb-3">Key Factors Driving Loan Defaults (Python Correlation Analysis)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left text-slate-300">
+                        <thead class="text-slate-400 bg-slate-950/60 uppercase font-mono text-[10px]">
+                            <tr>
+                                <th class="py-2 px-3 rounded-l">Data Column</th>
+                                <th class="py-2 px-3">Business Meaning</th>
+                                <th class="py-2 px-3 rounded-r text-right">Risk Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr><td class="py-2 px-3 font-medium text-white">credit_score</td><td class="py-2 px-3 text-slate-400">Applicant bureau credit score</td><td class="py-2 px-3 text-right text-emerald-400 font-medium">High Impact</td></tr>
+                            <tr><td class="py-2 px-3 font-medium text-white">revolving_utilization_pct</td><td class="py-2 px-3 text-slate-400">% of credit card limit used</td><td class="py-2 px-3 text-right text-emerald-400 font-medium">High Impact</td></tr>
+                            <tr><td class="py-2 px-3 font-medium text-white">inquiries_last_6m</td><td class="py-2 px-3 text-slate-400">Recent loan/card applications</td><td class="py-2 px-3 text-right text-indigo-400 font-medium">Medium Impact</td></tr>
+                            <tr><td class="py-2 px-3 font-medium text-white">dti_ratio</td><td class="py-2 px-3 text-slate-400">Debt-to-Income ratio</td><td class="py-2 px-3 text-right text-indigo-400 font-medium">Medium Impact</td></tr>
+                            <tr><td class="py-2 px-3 font-medium text-white">payment_to_income_pct</td><td class="py-2 px-3 text-slate-400">Monthly EMI vs. monthly income</td><td class="py-2 px-3 text-right text-indigo-400 font-medium">Medium Impact</td></tr>
+                            <tr><td class="py-2 px-3 font-medium text-white">term_months</td><td class="py-2 px-3 text-slate-400">Loan tenure (36 vs 60 months)</td><td class="py-2 px-3 text-right text-slate-400">Low Impact</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Table 2: Business Decision Rules -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+                <h3 class="text-sm font-semibold text-white mb-3">Recommended Loan Approval Rules</h3>
+                <div class="space-y-3">
+                    <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                        <div class="flex justify-between items-center text-xs font-semibold text-emerald-400">
+                            <span>Score &ge; 580 (Low Risk Segment)</span>
+                            <span class="px-2 py-0.5 rounded bg-emerald-500/20">AUTO-APPROVE</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Historical default rate &lt; 2.0%. Fast-track approval with standard interest rates.</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                        <div class="flex justify-between items-center text-xs font-semibold text-amber-400">
+                            <span>Score 540 &ndash; 579 (Medium Risk Segment)</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20">MANUAL REVIEW</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Default rate between 4.5% &ndash; 8.0%. Verify income documents and cap max loan at $15,000.</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                        <div class="flex justify-between items-center text-xs font-semibold text-rose-400">
+                            <span>Score &lt; 540 (High Risk Segment)</span>
+                            <span class="px-2 py-0.5 rounded bg-rose-500/20">AUTO-DECLINE</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Default rate &gt; 15.0%. High risk of financial loss; decline unsecured loan application.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto mt-12 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
+        Credit Risk & Loan Portfolio Analytics &bull; Data Cleaning & Segmentation in SQL &bull; EDA in Python &bull; Reporting in Excel & Power BI
+    </footer>
+
+    <script>
+        // Simulation Dataset Table (Calculated from Loan Test Cohort)
+        const simData = {
+            460: { approval: "96.5%", volume: "8,601", badRate: "16.04%", disbursed: "$128.3M", loss: "$14.47M", profit: "$9.08M", rod: "7.08%" },
+            470: { approval: "94.5%", volume: "8,422", badRate: "15.00%", disbursed: "$125.2M", loss: "$13.11M", profit: "$10.01M", rod: "8.00%" },
+            480: { approval: "92.3%", volume: "8,225", badRate: "13.96%", disbursed: "$121.8M", loss: "$11.76M", profit: "$10.79M", rod: "8.86%" },
+            490: { approval: "89.3%", volume: "7,960", badRate: "12.64%", disbursed: "$117.4M", loss: "$10.16M", profit: "$11.61M", rod: "9.89%" },
+            500: { approval: "85.7%", volume: "7,641", badRate: "11.48%", disbursed: "$112.1M", loss: "$8.77M", profit: "$11.89M", rod: "10.60%" },
+            510: { approval: "81.0%", volume: "7,218", badRate: "10.14%", disbursed: "$105.4M", loss: "$7.30M", profit: "$11.84M", rod: "11.24%" },
+            520: { approval: "75.1%", volume: "6,691", badRate: "8.68%", disbursed: "$97.2M", loss: "$5.82M", profit: "$11.46M", rod: "11.79%" },
+            530: { approval: "67.5%", volume: "6,016", badRate: "7.21%", disbursed: "$86.7M", loss: "$4.31M", profit: "$10.60M", rod: "12.23%" },
+            540: { approval: "59.1%", volume: "5,272", badRate: "5.56%", disbursed: "$75.5M", loss: "$2.87M", profit: "$9.63M", rod: "12.76%" },
+            550: { approval: "50.5%", volume: "4,503", badRate: "4.53%", disbursed: "$64.4M", loss: "$2.00M", profit: "$8.05M", rod: "12.50%" },
+            560: { approval: "41.6%", volume: "3,709", badRate: "3.40%", disbursed: "$52.4M", loss: "$1.22M", profit: "$6.46M", rod: "12.33%" },
+            570: { approval: "32.9%", volume: "2,931", badRate: "2.52%", disbursed: "$40.9M", loss: "$0.68M", profit: "$4.88M", rod: "11.96%" },
+            580: { approval: "25.4%", volume: "2,262", badRate: "1.95%", disbursed: "$31.1M", loss: "$0.45M", profit: "$3.48M", rod: "11.18%" },
+            590: { approval: "17.6%", volume: "1,570", badRate: "1.08%", disbursed: "$21.1M", loss: "$0.19M", profit: "$2.24M", rod: "10.64%" },
+            600: { approval: "11.5%", volume: "1,021", badRate: "0.78%", disbursed: "$13.5M", loss: "$0.09M", profit: "$1.34M", rod: "9.93%" },
+            610: { approval: "6.5%", volume: "582", badRate: "0.69%", disbursed: "$7.3M", loss: "$0.04M", profit: "$0.65M", rod: "8.90%" }
+        };
+
+        const slider = document.getElementById('cutoff-slider');
+        const cutoffDisplay = document.getElementById('cutoff-display');
+        const approvalEl = document.getElementById('sim-approval');
+        const volumeEl = document.getElementById('sim-volume');
+        const badRateEl = document.getElementById('sim-badrate');
+        const disbursedEl = document.getElementById('sim-disbursed');
+        const lossEl = document.getElementById('sim-loss');
+        const profitEl = document.getElementById('sim-profit');
+        const rodEl = document.getElementById('sim-rod');
+
+        function updateSimulator(val) {
+            cutoffDisplay.textContent = val;
+            const data = simData[val];
+            if (data) {
+                approvalEl.textContent = data.approval;
+                volumeEl.textContent = data.volume + " Approved";
+                badRateEl.textContent = data.badRate;
+                
+                const numericBad = parseFloat(data.badRate);
+                if (numericBad > 10.0) {
+                    badRateEl.className = "text-xl font-bold text-rose-400 mt-1";
+                } else if (numericBad > 5.0) {
+                    badRateEl.className = "text-xl font-bold text-amber-400 mt-1";
+                } else {
+                    badRateEl.className = "text-xl font-bold text-emerald-400 mt-1";
+                }
+
+                disbursedEl.textContent = data.disbursed;
+                lossEl.textContent = data.loss;
+                profitEl.textContent = data.profit;
+                rodEl.textContent = "Return: " + data.rod;
+            }
+        }
+
+        slider.addEventListener('input', (e) => updateSimulator(e.target.value));
+
+        // Initialize Charts
+        window.addEventListener('DOMContentLoaded', () => {
+            // Chart 1: Credit Tier Default Rates
+            const ctx1 = document.getElementById('tierChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Deep Subprime (<580)', 'Subprime (580-669)', 'Prime (670-739)', 'Super Prime (740+)'],
+                    datasets: [{
+                        label: 'Default Rate (%)',
+                        data: [76.81, 34.80, 10.84, 3.01],
+                        backgroundColor: [
+                            'rgba(244, 63, 94, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%', color: '#94a3b8' },
+                            grid: { color: 'rgba(51, 65, 85, 0.4)' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Net Profit vs Default Rate by Score Cut-Off
+            const ctx2 = document.getElementById('tradeoffChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['460', '480', '500', '520', '540', '550', '570', '590', '610'],
+                    datasets: [
+                        {
+                            label: 'Default Rate (%)',
+                            data: [16.04, 13.96, 11.48, 8.68, 5.56, 4.53, 2.52, 1.08, 0.69],
+                            borderColor: '#f43f5e',
+                            backgroundColor: '#f43f5e',
+                            yAxisID: 'y',
+                            tension: 0.3,
+                            pointRadius: 4
+                        },
+                        {
+                            label: 'Net Profit ($M)',
+                            data: [9.08, 10.79, 11.89, 11.46, 9.63, 8.05, 4.88, 2.24, 0.65],
+                            borderColor: '#38bdf8',
+                            backgroundColor: '#38bdf8',
+                            yAxisID: 'y1',
+                            borderDash: [5, 5],
+                            tension: 0.3,
+                            pointRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1', font: { size: 11 } } }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            beginAtZero: true,
+                            ticks: { callback: v => v + '%', color: '#f43f5e' },
+                            grid: { color: 'rgba(51, 65, 85, 0.4)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            beginAtZero: true,
+                            ticks: { callback: v => '$' + v + 'M', color: '#38bdf8' },
+                            grid: { drawOnChartArea: false }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
