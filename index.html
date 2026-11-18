@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credit Risk Cut-off Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1" defer></script>
+<script src="js/data.js" defer></script><script src="js/sim.js" defer></script><script src="js/charts.js" defer></script><script src="js/app.js" defer></script></head>
+<body>
+<header class="bar"><a class="brand" href="#simulator"><svg viewBox="0 0 20 20" fill="none"><rect x="1" y="1" width="18" height="18" rx="4" fill="#c8f169"/><path d="M5 14V9m5 5V5m5 9v-3" stroke="#0b0e0c" stroke-width="2" stroke-linecap="round"/></svg><span>Cut-off Study</span></a>
+<nav aria-label="Sections"><i class="pill"></i><a href="#simulator" class="on">Simulator</a><a href="#analytics">Analytics</a><a href="#policy">Policy</a><a href="#method">Method</a></nav>
+<span class="meta">30,000 loans · $449.3M exposure</span></header>
+
+<section id="simulator" class="hero">
+<div><p class="k">Credit risk &amp; loan default analysis</p><h1 style="margin-top:14px">Where should the approval line sit?</h1>
+<p class="lead">Every point on the score cut-off trades volume for safety. Drag the line and watch approvals, defaults and profit move together.</p>
+<div class="num"><output id="cut-out" for="sl">550</output><span class="l">minimum score</span></div>
+<input id="sl" type="range" min="460" max="610" step="10" value="550" aria-label="Minimum credit score cut-off">
+<div class="ticks"><span>460 volume</span><span>500 max profit</span><span>550 under 5%</span><span>610 strict</span></div></div>
+<div class="pan"><div class="k">Every 100 applicants</div><div id="wf" class="wf" role="img" aria-label="Grid of 100 applicants showing approved, defaulted and declined"></div>
+<div class="lg"><span><i style="background:var(--acc)"></i>Approved <b id="wf-a"></b></span><span><i style="background:var(--bad)"></i>Defaulted <b id="wf-d"></b></span><span><i style="background:var(--cell)"></i>Declined <b id="wf-x"></b></span></div>
+<p class="fn">Counts are scaled from the simulation table. Cell positions are illustrative.</p></div>
+</section>
+<section style="padding-top:0"><div class="row">
+<div><div class="l">Approval rate</div><div id="s-ap" class="v"></div><div id="s-vol" class="n"></div></div>
+<div><div class="l">Default rate</div><div id="s-bad" class="v"></div><div class="n"><span id="s-chip" class="tag"></span></div></div>
+<div><div class="l">Disbursed</div><div id="s-dis" class="v"></div><div class="n">Capital lent</div></div>
+<div><div class="l">Default loss</div><div id="s-loss" class="v bad"></div><div class="n">Unrecovered principal</div></div>
+<div><div class="l">Net profit</div><div id="s-prof" class="v ok"></div><div id="s-ret" class="n"></div></div></div></section>
+
+<section id="analytics"><p class="k">Portfolio</p><h2>What the history says</h2><div id="kpis" class="row stg" style="margin-top:28px"></div>
+<div class="g2"><div class="pan rv" data-s="l"><div class="ph"><b>Default rate by credit tier</b><span class="k">SQL segmentation</span></div><div class="chart"><canvas id="tierChart" role="img" aria-label="Default rate by credit tier"></canvas></div><div id="tiers" class="tiers"></div></div>
+<div class="pan rv" data-s="r"><div class="ph"><b>Profit vs. default rate</b><span class="k">Python EDA</span></div><div class="chart"><canvas id="tradeChart" role="img" aria-label="Default rate and net profit by score cut-off"></canvas></div><p class="fn">Dashed line marks the cut-off selected above. Profit peaks at 500 ($11.89M); default stays under 5% from 550.</p></div></div></section>
+
+<section id="policy"><p class="k">Decision policy</p><h2>Three bands, three outcomes</h2>
+<div class="pan rv" style="margin-top:24px"><div class="ruler" role="img" aria-label="Score scale 460 to 610 with decline, review and approve bands"><span></span><span></span><span></span><div id="mk"><span id="mk-v"></span></div></div><div class="ticks rt"><span style="left:0">460</span><span style="left:53.3%">540</span><span style="left:80%">580</span><span style="left:100%">610</span></div>
+<div class="rules"><div><b class="bad">Below 540 · Auto-decline</b><p>Default rate above 15%. Decline the unsecured application.</p></div><div><b class="warn">540–579 · Manual review</b><p>Default rate 4.5% to 8%. Verify income documents and cap the loan at $15,000.</p></div><div><b class="ok">580 and above · Auto-approve</b><p>Default rate under 2%. Fast-track at standard interest rates.</p></div></div></div>
+<p class="k" style="margin-top:56px">Key default drivers</p><div id="drv" class="drv stg"></div></section>
+
+<section id="method"><p class="k">Method</p><h2>Built with four tools</h2><div id="stack" class="st stg"></div></section>
+<footer>SQL data cleaning &amp; segmentation · Python EDA · Excel &amp; Power BI reporting</footer>
+</body></html>
